@@ -5,6 +5,12 @@ const pizzaController = {
     //get all pizzas
     getAllPizza(req,res) {
         Pizza.find({})
+        .populate({
+            path: 'comments',
+            select: '-__v'
+        })
+        .select('-__v')
+        .sort({ _id: -1 })
         .then(dbPizzaData => res.json(dbPizzaData))
         .catch(err => {
             console.log(err)
@@ -15,6 +21,11 @@ const pizzaController = {
     // get one pizza by id
     getPizzaById({ params }, res) {
         Pizza.findOne({ _id: params.id })
+        .populate({
+            path: 'comments',
+            select: '-__v'
+        })
+        .select('-__v')
         .then(dbPizzaData => {
         // If no pizza is found, send 404
         if (!dbPizzaData) {
@@ -39,6 +50,8 @@ const pizzaController = {
     //update pizza by id
     updatePizza({ params, body}, res) {
         //By setting the parameter to true, we're instructing Mongoose to return the new version of the document.
+        //With Mongoose, the "where" clause is used first, then the updated data, then options for how the data should be returned.
+        //Where, What, How
         Pizza.findOneAndUpdate({ _id: params.id }, body,{ new: true })
         .then(dbPizzaData => {
             if (!dbPizzaData) {
